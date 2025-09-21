@@ -34,7 +34,7 @@ PORT=3001
 NODE_ENV="development"
 UPLOAD_DIR="./uploads"
 MAX_FILE_SIZE=10485760
-FRONTEND_URL="http://localhost:5173"
+FRONTEND_URL="http://localhost:8081"
 ```
 
 **Important**: Make sure your MySQL server is running and you have created the `civic_connect` database:
@@ -84,7 +84,7 @@ VITE_API_URL=http://localhost:3001/api
 npm run dev
 ```
 
-The frontend will be available at `http://localhost:5173`
+The frontend will be available at `http://localhost:8081`
 
 ## Default Credentials
 
@@ -225,3 +225,4 @@ For issues or questions:
 ## License
 
 MIT License - see LICENSE file for details
+
