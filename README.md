@@ -9,7 +9,7 @@ A modern, full-stack web application designed to bridge the gap between citizens
 <a href="#"><strong>Explore the docs »</strong></a>
 <br />
 <br />
-<a href="[https://www.google.com/search?q=https://your-frontend-app-name.vercel.app](https://sih-2025-pi.vercel.app/login)">View Demo</a>
+<a href="[(https://sih-2025-pi.vercel.app/login)]">View Demo</a>
 ·
 <a href="#">Report Bug</a>
 ·
@@ -205,4 +205,5 @@ Project Link: https://github.com/your_username/your_repository
 [node-url]: https://nodejs.org/
 []: #
 [express-url]: https://expressjs.com/
+
 
