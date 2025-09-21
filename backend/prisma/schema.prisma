@@ -1,0 +1,161 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  CITIZEN
+  ADMIN
+}
+
+enum IssueStatus {
+  SUBMITTED
+  ACKNOWLEDGED
+  ASSIGNED
+  IN_PROGRESS
+  RESOLVED
+  CLOSED
+}
+
+enum IssuePriority {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
+enum IssueCategory {
+  POTHOLE
+  GARBAGE_COLLECTION
+  STREET_LIGHT
+  SEWER_ISSUE
+  ROAD_MAINTENANCE
+  PUBLIC_SAFETY
+  PARKS_RECREATION
+  TRAFFIC_SIGNAL
+  OTHER
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  password  String
+  name      String?
+  role      UserRole @default(CITIZEN)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  reportedIssues Issue[] @relation("IssueReporter")
+  assignedIssues Issue[] @relation("IssueAssignee")
+  comments IssueComment[]
+  statusChanges IssueStatusHistory[]
+
+  @@map("users")
+}
+
+model Issue {
+  id          String        @id @default(cuid())
+  title       String
+  description String
+  category    IssueCategory
+  priority    IssuePriority
+  status      IssueStatus   @default(SUBMITTED)
+  severity    Int           @default(3) // 1-5 scale
+  location    String
+  latitude    Float?
+  longitude   Float?
+  
+  // Relations
+  reporterId  String
+  reporter    User         @relation("IssueReporter", fields: [reporterId], references: [id])
+  assigneeId  String?
+  assignee    User?        @relation("IssueAssignee", fields: [assigneeId], references: [id])
+  
+  // Timestamps
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  resolvedAt  DateTime?
+  
+  // Relations
+  attachments IssueAttachment[]
+  comments    IssueComment[]
+  statusHistory IssueStatusHistory[]
+
+  @@map("issues")
+}
+
+model IssueAttachment {
+  id        String   @id @default(cuid())
+  filename  String
+  originalName String
+  mimeType  String
+  size      Int
+  url       String
+  type      String   // 'image' or 'audio'
+  
+  // Relations
+  issueId   String
+  issue     Issue    @relation(fields: [issueId], references: [id], onDelete: Cascade)
+  
+  createdAt DateTime @default(now())
+
+  @@map("issue_attachments")
+}
+
+model IssueComment {
+  id        String   @id @default(cuid())
+  content   String
+  isInternal Boolean @default(false) // Internal admin comments vs public
+  
+  // Relations
+  issueId   String
+  issue     Issue    @relation(fields: [issueId], references: [id], onDelete: Cascade)
+  authorId  String
+  author    User     @relation(fields: [authorId], references: [id])
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("issue_comments")
+}
+
+model IssueStatusHistory {
+  id        String      @id @default(cuid())
+  status    IssueStatus
+  comment   String?
+  
+  // Relations
+  issueId   String
+  issue     Issue       @relation(fields: [issueId], references: [id], onDelete: Cascade)
+  changedById String
+  changedBy User        @relation(fields: [changedById], references: [id])
+  
+  createdAt DateTime    @default(now())
+
+  @@map("issue_status_history")
+}
+
+// Analytics and reporting
+model AnalyticsSnapshot {
+  id        String   @id @default(cuid())
+  date      DateTime @unique
+  totalIssues Int
+  openIssues Int
+  resolvedIssues Int
+  avgResolutionTime Float // in days
+  categoryBreakdown Json
+  priorityBreakdown Json
+  statusBreakdown Json
+  
+  createdAt DateTime @default(now())
+
+  @@map("analytics_snapshots")
+}
